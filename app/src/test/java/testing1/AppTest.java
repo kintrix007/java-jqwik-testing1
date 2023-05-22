@@ -5,15 +5,19 @@ package testing1;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+// import static org.mockito.Mockito.*;
 
 import java.util.*;
 import java.util.stream.*;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
 import net.jqwik.api.*;
 import net.jqwik.api.constraints.*;
+
+import static org.mockito.Mockito.*;
 
 class AppTest {
     @Property
@@ -62,4 +66,38 @@ class AppTest {
         return Arbitraries.integers().between(0, 100)
             .array(int[].class);
     }
+    
+    @Provide
+    Arbitrary<Tuple> intProvider() {
+        return Arbitraries.randomValue(x -> {
+            Integer a = Math.abs(x.nextInt());
+            Integer b = Math.abs(x.nextInt());
+            Integer c = x.nextInt(Math.abs(b-a), a+b);
+            return new Tuple(a, b, c);
+        });
+    }
+    
+    class MyAdder {
+        int add(int a, int b) {
+            return a + b;
+        }
+    }
+
+    @Example
+    void mockitoThing() {
+        var foo = mock(MyAdder.class);
+        foo.add(1, 2);
+        when(69).thenReturn(42);
+        assertEquals(42, foo.add(1, 2));
+    }
+
+    @Example
+    void anotherExample() {
+        var list = mock(ArrayList.class);
+        when(list.size()).thenReturn(69);
+        assertEquals(69, list.size());
+        list.add("ur mom");
+        assertEquals(69, list.size());
+    }
 }
+
