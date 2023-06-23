@@ -14,6 +14,9 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.safari.SafariDriver;
+
 import net.jqwik.api.*;
 import net.jqwik.api.constraints.*;
 
@@ -98,6 +101,17 @@ class AppTest {
         assertEquals(69, list.size());
         list.add("ur mom");
         assertEquals(69, list.size());
+    }
+
+    @Example
+    void idk() {
+        var browser = new SafariDriver();
+        browser.get("https://goalsel.live");
+        var header = browser.findElement(By.tagName("h1"));
+
+        assertEquals("Goalsel", header.getText());
+
+        browser.close();
     }
 }
 
