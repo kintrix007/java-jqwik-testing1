@@ -3,25 +3,32 @@
  */
 package testing1;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 // import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.*;
-import org.junit.jupiter.params.provider.*;
 import org.openqa.selenium.By;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.firefox.FirefoxDriver;
+// import org.openqa.selenium.*;
 import org.openqa.selenium.safari.SafariDriver;
 
-import net.jqwik.api.*;
-import net.jqwik.api.constraints.*;
-
-import static org.mockito.Mockito.*;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.Assume;
+import net.jqwik.api.Example;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
+import net.jqwik.api.constraints.IntRange;
+import net.jqwik.api.constraints.Size;
 
 class AppTest {
     @Property
@@ -106,13 +113,34 @@ class AppTest {
 
     @Example
     void idk() {
-        var browser = new SafariDriver();
-        browser.get("https://goalsel.live");
-        var header = browser.findElement(By.tagName("h1"));
+        var driver = new FirefoxDriver();
+        driver.get("https://goalsel.live");
 
-        assertEquals("Goalsel", header.getText());
+        var input = driver.findElement(By.id("author_name"));
+        input.sendKeys("John Doe");
+        var submit = driver.findElement(By.id("author_submit_button"));
+        submit.click();
+        
+        var authorList = driver.findElement(By.id("author_list"));
+        var bookList = driver.findElement(By.id("book_list"));
+        var search = driver.findElement(By.id("search_bar"));
 
-        browser.close();
+        search.sendKeys("Dan");
+        search.sendKeys(Keys.ENTER);
+        var authors = authorList.findElements(By.cssSelector("*"))
+            .stream().map(x -> x.getText().split(" : ")[1]);
+        Assertions.assertThat(authors).containsExactlyInAnyOrder("Dan Brown");
+
+        search.sendKeys("Da");
+        search.sendKeys(Keys.ENTER);
+        var books = bookList.findElements(By.cssSelector("*"))
+            .stream().map(x -> x.getText());
+        authors = authorList.findElements(By.cssSelector("*"))
+            .stream().map(x -> x.getText().split(" : ")[1]);
+        Assertions.assertThat(authors).containsExactlyInAnyOrder("Dan Brown");
+        Assertions.assertThat(books).containsExactlyInAnyOrder("\"The Da Vinci Code\" by: Dan Brown");
+
+        driver.close();
     }
 }
 
